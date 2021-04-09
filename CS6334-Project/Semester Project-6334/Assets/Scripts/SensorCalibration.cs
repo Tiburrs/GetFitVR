@@ -126,22 +126,22 @@ public class SensorCalibration : MonoBehaviour
         if(calibrationExercise == ExerciseLibrary.Exercise.SitUp)
         {
             if(step == 0)
-                setCanvasText("Press/slide button on headset\nto begin sit-up calibration");
+                setCanvasText("Press button on headset\nto begin sit-up calibration");
             else if(step == 1)
             {
-                setCanvasText("Get in position 1 of a sit-up,\nthen press/slide button on headset");
+                setCanvasText("Get in position 1 of a sit-up,\nthen press button on headset");
                 setCanvasImage(situpPosition1Image);
             }
             else if(step == 2)
             {
                 readPositionAngles(1);
-                setCanvasText("Get in position 2 of a sit-up,\nthen press/slide button on headset");
+                setCanvasText("Get in position 2 of a sit-up,\nthen press button on headset");
                 setCanvasImage(situpPosition2Image);
             }
             else if(step == 3)
             {
                 readPositionAngles(2);
-                setCanvasText("Calibration is complete!\nPress/slide button on headset to finish");
+                setCanvasText("Calibrated successfully!\nPress button on headset to finish");
                 setCanvasImage(null);
             }
             else
