@@ -2,10 +2,6 @@
  * rotation in preparation for the various supported exercises.
  *
  * To start a calibration walkthough, call beginCalibration() from an outside script.
- * 
- * It also has a default margin-of-error (degrees) that can be changed by the developer.
- * This margin is added and subtracted (during exercies) to the angles set by the user
- * during this calibration.
  */
 using System.Collections;
 using System.Collections.Generic;
@@ -32,20 +28,20 @@ public class SensorCalibration : MonoBehaviour
     // This exercise is the one that will be calibrated. Set by beginCalibration().
     private ExerciseLibrary.Exercise calibrationExercise;
     // Flag set when the user enters the calibration walkthrough. Set by beginCalibration().
-    private bool userCalibrating = false;
+    public bool userCalibrating = false;
     // Flag set to the current step in the calibration process. Reset by beginCalibration().
     private int calibrationStep = 0;
+    // Reference to the Workout.cs script in order to set its variable "calibrated" to true once calibration finishes here.
+    private Workout workout;
 
     void Start()
     {
+        workout = GetComponent<Workout>();
         calibrationCanvas.enabled = false;
         cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
         cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
         setCanvasText("");
         setCanvasImage(null);
-
-        // Testing. For final prototype, remove this.
-        beginCalibration(ExerciseLibrary.Exercise.SitUp);
     }
 
     void Update()
@@ -108,6 +104,7 @@ public class SensorCalibration : MonoBehaviour
      */
     private void endCalibration()
     {
+        workout.calibrated = true;
         userCalibrating = false;
         calibrationStep = 0;
         calibrationCanvas.enabled = false;

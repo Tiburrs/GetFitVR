@@ -301,7 +301,7 @@ MonoBehaviour:
   playerCamera: {fileID: 963194227}
   cardboardPosition1Model: {fileID: 352828446}
   cardboardPosition2Model: {fileID: 510670456}
-  marginOfErrorDegrees: 5
+  userCalibrating: 0
 --- !u!114 &367552051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,6 +326,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac8f23b08bce2d44a99330df973737ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  calibrated: 0
+  selectedExercise: 0
+  sets: 2
+  reps: 5
+  errorPaddingDegrees: 5
+  playerCamera: {fileID: 963194227}
 --- !u!1 &510670456
 GameObject:
   m_ObjectHideFlags: 0
