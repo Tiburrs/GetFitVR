@@ -9,9 +9,11 @@
  *
  * The number of sets and reps can also be adjusted manually or via a menu.
  */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Workout : MonoBehaviour
 {
@@ -40,79 +42,140 @@ public class Workout : MonoBehaviour
     private bool position2Next = false;
     // Reference to player camera to track phone angle
     public Camera playerCamera;
+    // Flag to know whether the user is currently still working out. This is check in Update()
+    private bool workoutInProgress = false;
+    // Flag used to know whether to display final workout stats at the end of a workout in Update()
+    private bool workoutDone = false;
+
+    // ######## UI ########
+    // Canvas items where the UI is placed that shows stats of the user's workout
+    public Canvas workoutCanvas;
+    public Text statsText;
+    public Text timerText;
+    public Text instructionText;
+    private TimeSpan totalTime = new TimeSpan(0, 0, 0, 0);
+    private TimeSpan bestTotalTime = new TimeSpan(0, 0, 0, 0);
+    private TimeSpan bestSetTime = new TimeSpan(0, 0, 0, 0);
+    private TimeSpan bestRepTime = new TimeSpan(0, 0, 0, 0);
+    private bool firstWorkoutFrame = true;
 
     void Start()
     {
+        workoutCanvas.enabled = false;
         calibration = GetComponent<SensorCalibration>();
+
+        // For testing purposes. Remove this for final prototype:
+        beginWorkout(ExerciseLibrary.Exercise.SitUp);
     }
 
     void Update()
     {
         // Check if 1. a calibration has NOT been done AND 2. a calibration is NOT in progress
         if((calibrated == false) && (calibration.userCalibrating == false))
+        {
+            workoutCanvas.enabled = false;
             calibration.beginCalibration(selectedExercise);
+        }
         else if(calibrated == true) // Else, check if a calibration has been done in the past
         {   // If so, continue to exercise
-
-            // Check if entire exercise is done yet
-            if(setsSoFar < sets)
+            if(workoutInProgress == true)
             {
-                if(repsSoFar < reps)
+                workoutCanvas.enabled = true;
+                updateStatsText();
+                // Check whether we're past the 1st frame here in order to enable the user to exit. This is a fix for a bug where the user got auto-exited on the first frame.
+                if(firstWorkoutFrame == false)
+                    if(Input.GetButtonDown("Fire1"))
+                        finishWorkout();
+                if(firstWorkoutFrame == true)
+                    firstWorkoutFrame = false;
+                // Check if entire exercise is done yet
+                if(setsSoFar < sets)
                 {
-                    // Here, there is different logic for each type of exercise, since all have different numbers of positions
-                    if(selectedExercise == ExerciseLibrary.Exercise.SitUp)
+                    if(repsSoFar < reps)
                     {
-                        // Wait on a new rep
-                        if((position1Next == true) && 
-                            ((playerCamera.transform.localEulerAngles.x > ((calibration.situpCalibratedRotations[1].x-errorPaddingDegrees)%360)) &&
-                            (playerCamera.transform.localEulerAngles.x < ((calibration.situpCalibratedRotations[1].x+errorPaddingDegrees)%360))))   // Check for a position 1 angle
+                        // Here, there is different logic for each type of exercise, since all have different numbers of positions
+                        if(selectedExercise == ExerciseLibrary.Exercise.SitUp)
                         {
-                            Debug.Log("Position 1 done");
-                            // Change trackers to track position 2 now
-                            position1Next = false;
-                            position2Next = true;
+                            // Wait on a new rep
+                            if((position1Next == true) && 
+                                ((playerCamera.transform.localEulerAngles.x > ((calibration.situpCalibratedRotations[1].x-errorPaddingDegrees)%360)) &&
+                                (playerCamera.transform.localEulerAngles.x < ((calibration.situpCalibratedRotations[1].x+errorPaddingDegrees)%360))))   // Check for a position 1 angle
+                            {
+                                // Change trackers to track position 2 now
+                                position1Next = false;
+                                position2Next = true;
+                            }
+                            else if((position2Next == true) &&
+                                ((playerCamera.transform.localEulerAngles.x > ((calibration.situpCalibratedRotations[2].x-errorPaddingDegrees)%360)) &&
+                                (playerCamera.transform.localEulerAngles.x < ((calibration.situpCalibratedRotations[2].x+errorPaddingDegrees)%360))))  // Check for a position 2 angle
+                            {
+                                // 1 full rep has been down now, since this is position 2
+                                // Change trackers to track position 1 now
+                                position1Next = true;
+                                position2Next = false;
+                                repsSoFar += 1; // Increase rep count since we now did position 2, which is a full situp
+                            }
                         }
-                        else if((position2Next == true) &&
-                            ((playerCamera.transform.localEulerAngles.x > ((calibration.situpCalibratedRotations[2].x-errorPaddingDegrees)%360)) &&
-                            (playerCamera.transform.localEulerAngles.x < ((calibration.situpCalibratedRotations[2].x+errorPaddingDegrees)%360))))  // Check for a position 2 angle
+                        else
                         {
-                            Debug.Log("Position 2 done");
-                            // Change trackers to track position 1 now
-                            position1Next = true;
-                            position2Next = false;
-                            repsSoFar += 1; // Increase rep count since we now did position 2, which is a full situp
+                            Debug.Log("Workout Not Supported");
                         }
                     }
                     else
                     {
-                        Debug.Log("Workout Not Supported");
+                        // Reset trackers in preparation for next set
+                        repsSoFar = 0;
+                        setsSoFar += 1;
                     }
                 }
                 else
                 {
-                    Debug.Log("Set done");
-                    // Reset trackers in preparation for next set
-                    repsSoFar = 0;
-                    setsSoFar += 1;
+                    finishWorkout();
                 }
             }
-            else
+            else if(workoutDone == true)
             {
-                // Workout complete
-                Debug.Log("Workout Complete");
+                finishWorkout();
+                if(Input.GetButtonDown("Fire1"))
+                    endWorkout();
             }
+            else
+                endWorkout();
         }
     }
 
-    /*  For easy range comparison between angles, change eular angles of values [360,180) to [0,-180).
-     *  Eular values in the range [0,180] will remain the same.
-     *  This conversion makes 
-     */
-    private float numberLineAngle(float eulerAngle)
+    public void beginWorkout(ExerciseLibrary.Exercise exerciseToCalibrate)
     {
-        if(eulerAngle > 180)
-            return -(360 - eulerAngle);
-        else
-            return eulerAngle;
+        workoutCanvas.enabled = true;
+        instructionText.text = "Press button on headset to STOP";
+        workoutInProgress = true;
+        workoutDone = false;
+        setsSoFar = 0;
+        repsSoFar = 0;
+        selectedExercise = exerciseToCalibrate;
+    }
+
+    private void finishWorkout()
+    {
+        workoutInProgress = false;
+        workoutDone = true;
+        instructionText.text = "Done!\nPress button on headset to QUIT";
+        // Show the final workout stats on the UI
+        updateStatsText();
+    }
+
+    private void endWorkout()
+    {
+        workoutInProgress = false;
+        workoutDone = false;
+        workoutCanvas.enabled = false;
+    }
+
+    private void updateStatsText()
+    {
+        double calories = 0.25 * (repsSoFar + (setsSoFar * reps));
+        statsText.text = "Sets: "+setsSoFar+"/"+sets+
+                        "\nReps: "+repsSoFar+"/"+reps+
+                        "\nCalories: "+calories;
     }
 }

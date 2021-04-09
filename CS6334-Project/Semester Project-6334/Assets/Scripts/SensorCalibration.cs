@@ -136,7 +136,7 @@ public class SensorCalibration : MonoBehaviour
             else if(step == 3)
             {
                 readPositionAngles(2);
-                setCanvasText("Calibrated successfully!\nPress button on headset to finish");
+                setCanvasText("Calibrated successfully!\nPress button on headset to begin workout");
                 setCanvasImage(null);
             }
             else
