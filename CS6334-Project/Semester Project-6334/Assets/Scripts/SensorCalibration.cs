@@ -70,8 +70,8 @@ public class SensorCalibration : MonoBehaviour
                 cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
                 cardboardPosition1Model.transform.localEulerAngles = new Vector3(
                                                 playerCamera.transform.localEulerAngles.x,
-                                                playerCamera.transform.localEulerAngles.y,
-                                                playerCamera.transform.localEulerAngles.z);
+                                                cardboardPosition1Model.transform.localEulerAngles.y,
+                                                cardboardPosition1Model.transform.localEulerAngles.z);
             }
             else if(calibrationStep==2)
             {
@@ -79,8 +79,8 @@ public class SensorCalibration : MonoBehaviour
                 cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
                 cardboardPosition2Model.transform.localEulerAngles = new Vector3(
                                                 playerCamera.transform.localEulerAngles.x,
-                                                playerCamera.transform.localEulerAngles.y,
-                                                playerCamera.transform.localEulerAngles.z);
+                                                cardboardPosition2Model.transform.localEulerAngles.y,
+                                                cardboardPosition2Model.transform.localEulerAngles.z);
             }
             else if(calibrationStep==0)
             {   // Remove 3D models once done or if the calibration is barely starting
@@ -151,7 +151,7 @@ public class SensorCalibration : MonoBehaviour
 
     private void readPositionAngles(int pos)
     {
-        situpCalibratedRotations[pos] = playerCamera.transform.localEulerAngles;
+        situpCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x, 0, 0);
     }
 
     /*  Helper function to quickly change the instructional text on the
