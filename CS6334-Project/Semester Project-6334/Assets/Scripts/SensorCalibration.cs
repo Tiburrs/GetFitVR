@@ -25,8 +25,6 @@ public class SensorCalibration : MonoBehaviour
     // 3D models of a Google Cardboard to help user orient themselves. This model will reflect the currect orientation.
     public GameObject cardboardPosition1Model;
     public GameObject cardboardPosition2Model;
-    // Margin-of-error to be added and subtracted to angles found during calibration'
-    public float marginOfErrorDegrees = 5;
     // Final product of this calibration is the rotations of the 2 situp positions. They're stored in this dictionary with public access.
     // The dictionary has this form: {1: Vector3, 2: Vector3}
     public Dictionary<int, Vector3> situpCalibratedRotations = new Dictionary<int, Vector3>(); 

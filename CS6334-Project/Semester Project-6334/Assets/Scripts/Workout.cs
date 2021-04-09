@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class Workout : MonoBehaviour
 {
-    // Start is called before the first frame update
+    // Margin-of-error to be added and subtracted to angles found during calibration
+    public float errorPaddingDegrees = 5;
+
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
     {
         
