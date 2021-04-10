@@ -1,0 +1,36 @@
+Assets:
+Workout equipment
+  https://assetstore.unity.com/packages/3d/props/free-bodybuilder-asset-pack-130940
+Door
+  https://assetstore.unity.com/packages/3d/props/interior/door-free-pack-aferar-148411
+Glass Texture
+  https://assetstore.unity.com/packages/2d/textures-materials/texture-glass-transparent-window-182052
+Floor Texture
+  https://assetstore.unity.com/packages/2d/textures-materials/wood/wooden-floor-materials-150564
+(Nothing)
+  https://assetstore.unity.com/packages/3d/environments/urban/furnished-cabin-71426
+(sound)
+  https://assetstore.unity.com/packages/audio/ts-sounds-34453#content
+Calendar Picker
+  https://github.com/n-sundara-pandian/UnityCalender
+
+  
+  
+Scripts:
+  Player.cs
+    Script that has player information saved to it.
+  
+  PlayerData.cs
+    File used to Serialize players information
+    
+  SaveSystem.cs
+    Script used to save and load information
+      ref(https://www.youtube.com/watch?v=XOjd_qU2Ido&t=746s)
+      
+  recordKeepingMain.cs
+    Script used to show the data to the player.
+  
+  DatePickerScript.cs
+    Script used to help user select a date.
+  
+  
