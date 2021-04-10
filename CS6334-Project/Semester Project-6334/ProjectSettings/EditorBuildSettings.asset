@@ -4,7 +4,22 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Main_Room.unity
+    guid: c3799ca96d563074292d7af6e962ce14
+  - enabled: 1
+    path: Assets/Scenes/Menu Scene.unity
+    guid: 1c44a9c28318870438087949081cf875
+  - enabled: 1
+    path: Assets/Scenes/Record.unity
+    guid: bd16e66cb4070e24f884c3848e25838c
+  - enabled: 1
+    path: Assets/Scenes/SampleScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/Template Scene.unity
+    guid: 2822a3079a8f9f54a90f6d4071914898
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 98fb313a90c742540b1b7352da29cc32,
       type: 2}
