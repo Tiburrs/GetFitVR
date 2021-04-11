@@ -531,7 +531,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Wlcome to GetFitVR
+  m_Text: Welcome to GetFitVR
 --- !u!222 &387258749
 CanvasRenderer:
   m_ObjectHideFlags: 0
