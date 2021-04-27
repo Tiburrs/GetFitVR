@@ -23,15 +23,21 @@ public class Player : MonoBehaviour
 //    exercise1.generate_date("1/2/2021", new int[] {8,20});
 //    exercise1.generate_date("1/3/2021", new int[] {12});
 //    exercise1.generate_date("1/10/2021", new int[] {14});
+//    exercise1.generate_date("2/10/2021", new int[] {14,16});
 //    exercise2.generate_date("1/4/2021", new int[] {7});
 //    exercise2.generate_date("1/5/2021", new int[] {9,11});
 //    exercise2.generate_date("1/10/2021", new int[] {13,15});
+//    exercise2.generate_date("3/10/2021", new int[] {13,12});
 //    exercise3.generate_date("1/7/2021", new int[] {3});
 //    exercise3.generate_date("1/8/2021", new int[] {1});
 //    exercise3.generate_date("1/10/2021", new int[] {5,6});
 //    exercise3.generate_date("1/11/2021", new int[] {7,8});
 //    exercise3.generate_date("1/12/2021", new int[] {9,10});
 //    exercise3.generate_date("1/13/2021", new int[] {11,12});
+//    exercise3.generate_date("1/25/2021", new int[] {1,2});
+//    exercise3.generate_date("1/26/2021", new int[] {3,4});
+//    exercise3.generate_date("1/27/2021", new int[] {5,6});
+//    exercise3.generate_date("4/13/2021", new int[] {11,10});
   }
   
   // method used to read name of player

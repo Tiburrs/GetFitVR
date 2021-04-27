@@ -31,6 +31,9 @@ public static class SaveSystem
       PlayerData data = formatter.Deserialize(stream) as PlayerData;// loading information
       stream.Close();
       
+      // only keeping data that is 3 months old
+      data = PlayerData.cleanFile(data);
+      
       return data;
     }else{
       Debug.LogError("Save file not found in " + path);
