@@ -17,12 +17,14 @@ public class PlayerData
     
     public string date;       // string containing data "month/day/year"
     public int[] workout;     // int array containing all reps. each element is a different set
+    public float calories;
     
     // constructor function
     // input a string for current date and int array for reps
-    public Date(string complete_date, int[] new_reps){
+    public Date(string complete_date, int[] new_reps, float cal){
       date = complete_date;
       workout = new_reps;
+      calories = cal;
     }
     
   }// end of Date class
@@ -48,8 +50,8 @@ public class PlayerData
     
     // add a date class to your list
     // takes current date and int array
-    public void generate_date(string complete_date, int[] reps){
-      dates.Add(new Date(complete_date, reps));
+    public void generate_date(string complete_date, int[] reps, float cal){
+      dates.Add(new Date(complete_date, reps, cal));
     }
     
     // functiont that returns all date information as a string
@@ -66,7 +68,13 @@ public class PlayerData
         
         // looping through int array
         for(int i=0; i<date_cur.workout.Length;i++){
-          date_info += date_cur.date + "\tSet:\t" + (i+1) + "\tReps:\t" + date_cur.workout[i] + "\n";
+          date_info += date_cur.date + "\tSet:\t" + (i+1) + "\tReps:\t" + date_cur.workout[i];
+        
+          if (i == date_cur.workout.Length - 1){
+            date_info += "\tCals:\t" + date_cur.calories;
+          }
+          
+          date_info += "\n";
         }
       }
       

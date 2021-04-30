@@ -32,7 +32,7 @@ public static class SaveSystem
       stream.Close();
       
       // only keeping data that is 3 months old
-      data = PlayerData.cleanFile(data);
+      //data = PlayerData.cleanFile(data);
       
       return data;
     }else{
