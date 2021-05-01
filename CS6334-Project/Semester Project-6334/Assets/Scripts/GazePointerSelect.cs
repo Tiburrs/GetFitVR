@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 public class GazePointerSelect : MonoBehaviour
 {
-    public Image imgCircle;
+    public Image theImage;
     public UnityEvent GVRClick;
     public float totalTime = 2;
     bool gvrStatus;
@@ -18,7 +18,12 @@ public class GazePointerSelect : MonoBehaviour
         if(gvrStatus)
         {
             gvrTimer += Time.deltaTime;
-            imgCircle.fillAmount = gvrTimer / totalTime;
+            theImage.fillAmount = gvrTimer / totalTime;
+
+            if(theImage.fillAmount == 1)
+            {
+                theImage.fillAmount = 0;
+            }
         }
 
         if(gvrTimer > totalTime)
@@ -37,6 +42,6 @@ public class GazePointerSelect : MonoBehaviour
     {
         gvrStatus = false;
         gvrTimer = 0;
-        imgCircle.fillAmount = 0;
+        theImage.fillAmount = 0;
     }
 }
