@@ -16,6 +16,7 @@ public class Tutorial : MonoBehaviour
 {
     // Reference the to canvas containing the tutorial
     public Canvas tutorialCanvas;
+    public Canvas menu;
 
     void Start()
     {
@@ -27,8 +28,11 @@ public class Tutorial : MonoBehaviour
         if(tutorialCanvas.enabled == true)
         {
             // Listen for the user tapping the screen to exit the tutorial
-            if(Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonDown("Fire1"))
+            {
                 tutorialCanvas.enabled = false;
+                menu.enabled = true;
+            }
         }
     }
 

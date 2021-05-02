@@ -13,8 +13,8 @@ public class Player : MonoBehaviour
   // initializing exercise classes for the player
   // making static so it can persist
   static protected PlayerData.Exercise exercise1 = new PlayerData.Exercise("sit-up");
-  static protected PlayerData.Exercise exercise2 = new PlayerData.Exercise("twist-crunches");
-  static protected PlayerData.Exercise exercise3 = new PlayerData.Exercise("twist-lung");
+  static protected PlayerData.Exercise exercise2 = new PlayerData.Exercise("twist-lunge");
+  static protected PlayerData.Exercise exercise3 = new PlayerData.Exercise("twist-crunches");
   static protected PlayerData.Exercise exercise4 = new PlayerData.Exercise("trash");
 
   // setting default data for testing
@@ -101,11 +101,14 @@ public class Player : MonoBehaviour
   {
     // pulling saved info
     PlayerData data = SaveSystem.LoadPlayer();
-    
-    // updating player info
-    name = data.name;
-    exercise1 = data.exercise1;
-    exercise2 = data.exercise2;
-    exercise3 = data.exercise3;
+
+        // updating player info
+        if (data != null)
+        {
+            name = data.name;
+            exercise1 = data.exercise1;
+            exercise2 = data.exercise2;
+            exercise3 = data.exercise3;
+        }
   }
 }

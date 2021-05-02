@@ -9,6 +9,7 @@ public class GazePointerSelect : MonoBehaviour
     public Image theImage;
     public UnityEvent GVRClick;
     public float totalTime = 2;
+    
     bool gvrStatus;
     public float gvrTimer;
 
@@ -33,6 +34,7 @@ public class GazePointerSelect : MonoBehaviour
         if(gvrTimer > totalTime&&gvrStatus)
         {
             gvrStatus = false;
+            AudioManager.ButtonClick();
             GVRClick.Invoke();
         }
     }

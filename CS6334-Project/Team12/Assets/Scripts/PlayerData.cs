@@ -68,7 +68,7 @@ public class PlayerData
         
         // looping through int array
         for(int i=0; i<date_cur.workout.Length;i++){
-          date_info += date_cur.date + "\t#:\t" + (i+1) + "\tSets:\t" + date_cur.workout[i];
+          date_info += date_cur.date + "\t#:\t" + (i+1) + "\tReps:\t" + date_cur.workout[i];
         
           if (i == date_cur.workout.Length - 1){
             date_info += "\tCals:\t" + date_cur.calories;

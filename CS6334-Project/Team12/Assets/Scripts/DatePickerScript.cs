@@ -30,10 +30,11 @@ public class DatePickerScript : MonoBehaviour
     private void Awake()
     {
         todayButton();
+        closePanel();
     }
     // method used to open panel
     private void openPanel()
-    {
+    {   
       if(!datePickerPanel.activeSelf){
         datePickerPanel.SetActive(true);
       }
