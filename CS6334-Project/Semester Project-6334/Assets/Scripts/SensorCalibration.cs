@@ -21,6 +21,7 @@ public class SensorCalibration : MonoBehaviour
     // 3D models of a Google Cardboard to help user orient themselves. This model will reflect the currect orientation.
     public GameObject cardboardPosition1Model;
     public GameObject cardboardPosition2Model;
+    public GameObject cardboardPosition3Model;
     // Final product of this calibration is the rotations of the 2 situp positions. They're stored in this dictionary with public access.
     // The dictionary has this form: {1: Vector3, 2: Vector3}
     public Dictionary<int, Vector3> situpCalibratedRotations = new Dictionary<int, Vector3>(); 
@@ -40,6 +41,7 @@ public class SensorCalibration : MonoBehaviour
         calibrationCanvas.enabled = false;
         cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
         cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+        cardboardPosition3Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
         setCanvasText("");
         setCanvasImage(null);
     }
