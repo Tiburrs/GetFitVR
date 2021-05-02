@@ -95,16 +95,16 @@ public class SensorCalibration : MonoBehaviour
             {
                 if(calibrationStep==1)
                 {
-                    // Rotate 3D model 1 with the camera
+                    // Rotate 3D model 3 with the camera
                     cardboardPosition3Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
                     cardboardPosition3Model.transform.localEulerAngles = new Vector3(
                                                     playerCamera.transform.localEulerAngles.x,
-                                                    cardboardPosition3Model.transform.localEulerAngles.y,
+                                                    playerCamera.transform.localEulerAngles.y,
                                                     cardboardPosition3Model.transform.localEulerAngles.z);
                 }
                 else if(calibrationStep==2)
                 {
-                    // Freeze 3D model 1 and rotate 3D model 2 with the camera
+                    // Freeze 3D model 3 and rotate 3D model 1 with the camera
                     cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
                     cardboardPosition1Model.transform.localEulerAngles = new Vector3(
                                                     playerCamera.transform.localEulerAngles.x,
@@ -233,7 +233,8 @@ public class SensorCalibration : MonoBehaviour
         else if(calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch)
         {
             if(calibrationStep == 1)
-                twistcrunchCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x, 0, 0);
+                twistcrunchCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x, 
+                                                                    playerCamera.transform.localEulerAngles.y, 0);
             else
                 twistcrunchCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x,
                                                                     playerCamera.transform.localEulerAngles.y, 0);

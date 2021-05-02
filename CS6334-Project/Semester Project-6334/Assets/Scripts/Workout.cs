@@ -60,16 +60,21 @@ public class Workout : MonoBehaviour
     private TimeSpan bestSetTime = new TimeSpan(0, 0, 0, 0);
     private TimeSpan bestRepTime = new TimeSpan(0, 0, 0, 0);
     private bool firstWorkoutFrame = true;
-    public GameObject stickFigure;
+    public GameObject situpStickFigure;
+    public GameObject twistcrunchStickFigure;
     public Text repPercentage;
+    public GameObject repPerBackground;
 
     // ######## Extra Additions ##########
     public Canvas selections;
+    private Vector3 playerPos;
+    private Vector3 calibratedPos1;
+    private Vector3 calibratedPos2;
+    private Vector3 calibratedPos3;
     void Start()
     {
         workoutCanvas.enabled = false;
-        stickFigure.SetActive(false);
-        stickFigure.GetComponent<SpriteRenderer>().enabled = false;
+        enableStickFigures(false);
         calibration = GetComponent<SensorCalibration>();
     }
 
@@ -79,7 +84,7 @@ public class Workout : MonoBehaviour
         if ((calibrated == false) && (calibration.userCalibrating == false) && workoutInProgress)
         {
             workoutCanvas.enabled = false;
-            stickFigure.SetActive(false);
+            enableStickFigures(false);
             calibration.beginCalibration(selectedExercise);
         }
         else if(calibrated == true) // Else, check if a calibration has been done in the past
@@ -87,7 +92,7 @@ public class Workout : MonoBehaviour
             if(workoutInProgress == true)
             {
                 workoutCanvas.enabled = true;
-                stickFigure.SetActive(true);
+                enableStickFigures(true);
                 updateTimerText();
                 updateStatsText();
                 // Check whether we're past the 1st frame here in order to enable the user to exit.
@@ -109,7 +114,7 @@ public class Workout : MonoBehaviour
                             float playerX = normalizeLEAngle(playerCamera.transform.localEulerAngles.x);
                             float calibratedPos1X = normalizeLEAngle(calibration.situpCalibratedRotations[1].x);
                             float calibratedPos2X = normalizeLEAngle(calibration.situpCalibratedRotations[2].x);
-                            moveStickFigureGuide(playerX, calibratedPos1X, calibratedPos2X);
+                            moveStickFigureGuideSitup(playerX, calibratedPos1X, calibratedPos2X);
                             // Wait on a new rep
                             if((position1Next == true) && 
                                 ((playerX > ((calibratedPos1X-errorPaddingDegrees))) &&
@@ -132,10 +137,22 @@ public class Workout : MonoBehaviour
                         }
                         else if(selectedExercise == ExerciseLibrary.Exercise.TwistCrunch)
                         {
+                            // Normalize: To flip the 0-degree origin of the angles by 180 (makes comparing angles easier)
+                            playerPos = new Vector3(normalizeLEAngle(playerCamera.transform.localEulerAngles.x),
+                                                            normalizeLEAngle(playerCamera.transform.localEulerAngles.y), 0);
+                            calibratedPos1 = new Vector3(normalizeLEAngle(calibration.twistcrunchCalibratedRotations[1].x),
+                                                                normalizeLEAngle(calibration.twistcrunchCalibratedRotations[1].y), 0);
+                            calibratedPos2 = new Vector3(normalizeLEAngle(calibration.twistcrunchCalibratedRotations[2].x),
+                                                                normalizeLEAngle(calibration.twistcrunchCalibratedRotations[2].y), 0);
+                            calibratedPos3 = new Vector3(normalizeLEAngle(calibration.twistcrunchCalibratedRotations[3].x),
+                                                                normalizeLEAngle(calibration.twistcrunchCalibratedRotations[3].y), 0);
+                            moveStickFigureGuideTwistcrunch(playerPos, calibratedPos1, calibratedPos2, calibratedPos3);
                             // Wait on a new rep
                             if((position1Next == true) && 
-                                ((playerCamera.transform.localEulerAngles.x > ((calibration.twistcrunchCalibratedRotations[1].x-errorPaddingDegrees)%360)) &&
-                                (playerCamera.transform.localEulerAngles.x < ((calibration.twistcrunchCalibratedRotations[1].x+errorPaddingDegrees)%360))))   // Check for a position 1 angle
+                                ((playerPos.x > (calibratedPos1.x-errorPaddingDegrees)) &&
+                                (playerPos.x < (calibratedPos1.x+errorPaddingDegrees)) &&
+                                (playerPos.y > (calibratedPos1.y-errorPaddingDegrees)) &&
+                                (playerPos.y < (calibratedPos1.y+errorPaddingDegrees))))   // Check for a position 1 angle
                             {
                                 // Change trackers to track position 2 now
                                 position1Next = false;
@@ -143,14 +160,10 @@ public class Workout : MonoBehaviour
                                 position1Next = false;
                             }
                             else if((position2Next == true) &&
-                                        ((playerCamera.transform.localEulerAngles.x >
-                                            ((calibration.twistcrunchCalibratedRotations[2].x-errorPaddingDegrees)%360)) &&
-                                        (playerCamera.transform.localEulerAngles.x <
-                                            ((calibration.twistcrunchCalibratedRotations[2].x+errorPaddingDegrees)%360)) &&
-                                        (playerCamera.transform.localEulerAngles.y >
-                                            ((calibration.twistcrunchCalibratedRotations[2].y-errorPaddingDegrees)%360)) &&
-                                        (playerCamera.transform.localEulerAngles.y >
-                                            ((calibration.twistcrunchCalibratedRotations[2].y-errorPaddingDegrees)%360))))  // Check for a position 2 angles
+                                        ((playerPos.x > (calibratedPos2.x-errorPaddingDegrees)) &&
+                                        (playerPos.x < (calibratedPos2.x+errorPaddingDegrees)) &&
+                                        (playerPos.y > (calibratedPos2.y-errorPaddingDegrees)) &&
+                                        (playerPos.y < (calibratedPos2.y+errorPaddingDegrees))))  // Check for a position 2 angles
                             {
                                 // 1 full rep has been down now, since this is position 2
                                 // Change trackers to track position 3 now
@@ -159,14 +172,10 @@ public class Workout : MonoBehaviour
                                 position3Next = true;
                             }
                             else if((position3Next == true) &&
-                                        ((playerCamera.transform.localEulerAngles.x >
-                                            ((calibration.twistcrunchCalibratedRotations[3].x-errorPaddingDegrees)%360)) &&
-                                        (playerCamera.transform.localEulerAngles.x <
-                                            ((calibration.twistcrunchCalibratedRotations[3].x+errorPaddingDegrees)%360)) &&
-                                        (playerCamera.transform.localEulerAngles.y >
-                                            ((calibration.twistcrunchCalibratedRotations[3].y-errorPaddingDegrees)%360)) &&
-                                        (playerCamera.transform.localEulerAngles.y >
-                                            ((calibration.twistcrunchCalibratedRotations[3].y-errorPaddingDegrees)%360))))  // Check for a position 3 angles
+                                        ((playerPos.x > (calibratedPos3.x-errorPaddingDegrees)) &&
+                                        (playerPos.x < (calibratedPos3.x+errorPaddingDegrees)) &&
+                                        (playerPos.y > (calibratedPos3.y-errorPaddingDegrees)) &&
+                                        (playerPos.y < (calibratedPos3.y+errorPaddingDegrees))))  // Check for a position 3 angles
                             {
                                 // 1 full rep has been down now, since this is position 3
                                 // Change trackers to track position 1 now
@@ -206,11 +215,11 @@ public class Workout : MonoBehaviour
 
     public void CallWorkout()
     {
-        beginWorkout(ExerciseLibrary.Exercise.SitUp);
+        beginWorkout(ExerciseLibrary.Exercise.TwistCrunch);
     }
     public void beginWorkout(ExerciseLibrary.Exercise exerciseToCalibrate)
     {
-        stickFigure.SetActive(true);
+        enableStickFigures(true);
         workoutCanvas.enabled = true;
         instructionText.text = "Press button on headset to STOP";
         workoutInProgress = true;
@@ -225,7 +234,7 @@ public class Workout : MonoBehaviour
     private void finishWorkout()
     {
         startTime = -1;
-        stickFigure.SetActive(false);
+        enableStickFigures(false);
         workoutInProgress = false;
         workoutDone = true;
         instructionText.text = "Done!\nPress button on headset to QUIT";
@@ -266,14 +275,14 @@ public class Workout : MonoBehaviour
         return (localEulerAngle + 180) % 360;
     }
 
-    private void moveStickFigureGuide(float curPos, float lowerBound, float upperBound)
+    private void moveStickFigureGuideSitup(float curPos, float lowerBound, float upperBound)
     {
-        Transform stickFigureTorso = stickFigure.transform.Find("UpperBody");
-        SpriteRenderer pos1Line = stickFigure.transform.Find("Position1Line").GetComponent<SpriteRenderer>();
-        SpriteRenderer pos2Line = stickFigure.transform.Find("Position2Line").GetComponent<SpriteRenderer>();
         // Stick figure will move differently depending on the exercise
         if(selectedExercise == ExerciseLibrary.Exercise.SitUp)
         {
+            Transform stickFigureTorso = situpStickFigure.transform.Find("UpperBody");
+            SpriteRenderer pos1Line = situpStickFigure.transform.Find("Position1Line").GetComponent<SpriteRenderer>();
+            SpriteRenderer pos2Line = situpStickFigure.transform.Find("Position2Line").GetComponent<SpriteRenderer>();
             // Change color of guide lines depending on next situp position
             if (position2Next == true)
             {
@@ -304,6 +313,63 @@ public class Workout : MonoBehaviour
         }
     }
 
+    private void moveStickFigureGuideTwistcrunch(Vector3 playerPos, Vector3 calibratedPos1, Vector3 calibratedPos2, Vector3 calibratedPos3)
+    {
+        if(selectedExercise == ExerciseLibrary.Exercise.TwistCrunch)
+        {
+            Transform stickFigureTorso = twistcrunchStickFigure.transform.Find("UpperBody");
+            SpriteRenderer pos1Line = twistcrunchStickFigure.transform.Find("Position1Line").GetComponent<SpriteRenderer>();
+            SpriteRenderer pos2Line = twistcrunchStickFigure.transform.Find("Position2Line").GetComponent<SpriteRenderer>();
+            SpriteRenderer pos3Line = twistcrunchStickFigure.transform.Find("Position3Line").GetComponent<SpriteRenderer>();
+            // Change color of guide lines depending on next situp position. Also map the player's min/max angles to the stick figure
+            if (position2Next == true)
+            {
+                pos1Line.color = new Color(0f, 1f, 0f, 1f);
+                pos2Line.color = new Color(1f, 0f, 0f, 1f);
+                pos3Line.color = new Color(1f, 0f, 0f, 1f);
+                
+            }
+            else if (position3Next == true)
+            {
+                pos1Line.color = new Color(0f, 1f, 0f, 1f);
+                pos2Line.color = new Color(0f, 1f, 0f, 1f);
+                pos3Line.color = new Color(1f, 0f, 0f, 1f);
+            }
+            else if (position1Next == true)
+            {
+                pos1Line.color = new Color(1f, 0f, 0f, 1f);
+                pos2Line.color = new Color(0f, 1f, 0f, 1f);
+                pos3Line.color = new Color(0f, 1f, 0f, 1f);
+            }
+            // Map the player's angle to the min and max angles of the stick figure
+            float stickFigureZ = Mathf.Lerp(0, -30, Mathf.InverseLerp(calibratedPos1.x+errorPaddingDegrees, Math.Max(calibratedPos2.x, calibratedPos3.x)-errorPaddingDegrees, playerPos.x));
+            float stickFigureY = Mathf.Lerp(-35, 35, Mathf.InverseLerp(calibratedPos2.y+errorPaddingDegrees, calibratedPos3.y-errorPaddingDegrees, playerPos.y));
+            // Move the stick figure
+            stickFigureTorso.localEulerAngles = new Vector3(
+                stickFigureTorso.localEulerAngles.x,
+                stickFigureY,
+                stickFigureZ);
+            // Calculate the percentage of the rep we're at
+            int repPercent = 0;
+            // Add 33% if we're past position 1
+            if (position2Next == true)
+            {
+                repPercent = 33 + (int) Math.Round(Mathf.Lerp(0, 33/2f, Mathf.InverseLerp(calibratedPos1.x+errorPaddingDegrees, calibratedPos2.x-errorPaddingDegrees, playerPos.x)) +
+                                        Mathf.Lerp(0, 33/2f, Mathf.InverseLerp(calibratedPos1.y+errorPaddingDegrees, calibratedPos2.y-errorPaddingDegrees, playerPos.y)), 0);
+            }
+            else if (position3Next == true)
+            {
+                repPercent = 66 + (int) Math.Round(Mathf.Lerp(0, 33/2f, Mathf.InverseLerp(calibratedPos1.x+errorPaddingDegrees, calibratedPos3.x-errorPaddingDegrees, playerPos.x)), 0) +
+                                    (int) Math.Round(Mathf.Lerp(0, 33/2f, Mathf.InverseLerp(calibratedPos2.y+errorPaddingDegrees, calibratedPos3.y-errorPaddingDegrees, playerPos.y)), 0);
+            }
+            else
+            {
+                repPercent = (int) Math.Round(Mathf.Lerp(33, 0, Mathf.InverseLerp(calibratedPos1.x+errorPaddingDegrees, Math.Max(calibratedPos2.x, calibratedPos3.x)-errorPaddingDegrees, playerPos.x)), 0);
+            }
+            repPercentage.text = "Rep: "+repPercent+"%";
+        }
+    }
+
     private void updateTimerText()
     {
         if (startTime == -1)
@@ -311,5 +377,29 @@ public class Workout : MonoBehaviour
         TimeSpan elapsedTime = TimeSpan.FromSeconds(Time.time - startTime);
         string timeText = string.Format("{0:D2}:{1:D2}.{2:D2}", elapsedTime.Minutes, elapsedTime.Seconds, elapsedTime.Milliseconds/10);
         timerText.text = "Time:\n"+timeText;
+    }
+
+    private void enableStickFigures(bool enabled)
+    {
+        if (enabled == false)
+        {
+            repPerBackground.SetActive(enabled);
+            situpStickFigure.SetActive(enabled);
+            twistcrunchStickFigure.SetActive(enabled);
+        }
+        else
+        {
+            repPerBackground.SetActive(enabled);
+            if (selectedExercise == ExerciseLibrary.Exercise.SitUp)
+            {
+                situpStickFigure.SetActive(enabled);
+                twistcrunchStickFigure.SetActive(false);
+            }
+            else if (selectedExercise == ExerciseLibrary.Exercise.TwistCrunch)
+            {
+                situpStickFigure.SetActive(false);
+                twistcrunchStickFigure.SetActive(enabled);
+            }
+        }
     }
 }
