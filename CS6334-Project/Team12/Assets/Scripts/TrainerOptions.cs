@@ -23,9 +23,21 @@ public class TrainerOptions : MonoBehaviour
         }
     }
 
-    public void triggerDemonstration()
+    public void triggerSitup()
     {
-        a.SetTrigger("Demonstrate");
+        a.SetInteger("DemonState", 0);
+        a.SetBool("Busy", true);
+    }
+
+    public void triggerLunge()
+    {
+        a.SetInteger("DemonState", 1);
+        a.SetBool("Busy", true);
+    }
+
+    public void triggerCrunch()
+    {
+        a.SetInteger("DemonState", 2);
         a.SetBool("Busy", true);
     }
 }
