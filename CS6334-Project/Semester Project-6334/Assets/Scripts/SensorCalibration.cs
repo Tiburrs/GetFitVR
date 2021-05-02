@@ -95,7 +95,7 @@ public class SensorCalibration : MonoBehaviour
                     cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
                 }
             }
-            else if (calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch || calibrationExercise == ExerciseLibrary.Exercise.TwistLunge)
+            else if (calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch)
             {
                 if(calibrationStep==1)
                 {
@@ -121,6 +121,42 @@ public class SensorCalibration : MonoBehaviour
                     cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
                     cardboardPosition2Model.transform.localEulerAngles = new Vector3(
                                                     playerCamera.transform.localEulerAngles.x,
+                                                    playerCamera.transform.localEulerAngles.y,
+                                                    cardboardPosition2Model.transform.localEulerAngles.z);
+                }
+                else if(calibrationStep==4)
+                {   // Remove 3D models once done or if the calibration is barely starting
+                    cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                    cardboardPosition3Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                    cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                }
+            }
+            else if (calibrationExercise == ExerciseLibrary.Exercise.TwistLunge)
+            {
+                if(calibrationStep==1)
+                {
+                    // Rotate 3D model 3 with the camera
+                    cardboardPosition3Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
+                    cardboardPosition3Model.transform.localEulerAngles = new Vector3(
+                                                    cardboardPosition3Model.transform.localEulerAngles.x,
+                                                    playerCamera.transform.localEulerAngles.y,
+                                                    cardboardPosition3Model.transform.localEulerAngles.z);
+                }
+                else if(calibrationStep==2)
+                {
+                    // Freeze 3D model 3 and rotate 3D model 1 with the camera
+                    cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
+                    cardboardPosition1Model.transform.localEulerAngles = new Vector3(
+                                                    cardboardPosition3Model.transform.localEulerAngles.x,
+                                                    playerCamera.transform.localEulerAngles.y,
+                                                    cardboardPosition1Model.transform.localEulerAngles.z);
+                }
+                else if(calibrationStep==3)
+                {
+                    // Freeze 3D model 1 and rotate 3D model 2 with the camera
+                    cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
+                    cardboardPosition2Model.transform.localEulerAngles = new Vector3(
+                                                    cardboardPosition3Model.transform.localEulerAngles.x,
                                                     playerCamera.transform.localEulerAngles.y,
                                                     cardboardPosition2Model.transform.localEulerAngles.z);
                 }

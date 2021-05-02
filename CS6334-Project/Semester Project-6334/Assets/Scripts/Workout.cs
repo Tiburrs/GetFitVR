@@ -62,6 +62,7 @@ public class Workout : MonoBehaviour
     private bool firstWorkoutFrame = true;
     public GameObject situpStickFigure;
     public GameObject twistcrunchStickFigure;
+    public GameObject twistlungeStickFigure;
     public Text repPercentage;
     public GameObject repPerBackground;
 
@@ -71,6 +72,7 @@ public class Workout : MonoBehaviour
     private Vector3 calibratedPos1;
     private Vector3 calibratedPos2;
     private Vector3 calibratedPos3;
+    private int previousPosition = 3;
     void Start()
     {
         workoutCanvas.enabled = false;
@@ -182,7 +184,58 @@ public class Workout : MonoBehaviour
                                 position1Next = true;
                                 position2Next = false;
                                 position3Next = false;
-                                repsSoFar += 1; // Increase rep count since we now did position 2, which is a full twist crunch
+                                repsSoFar += 1; // Increase rep count since we now did position 3, which is a full twist crunch
+                            }
+                        }
+                        else if(selectedExercise == ExerciseLibrary.Exercise.TwistLunge)
+                        {
+                            // Normalize: To flip the 0-degree origin of the angles by 180 (makes comparing angles easier)
+                            float playerY = normalizeLEAngle(playerCamera.transform.localEulerAngles.y);
+                            float calibratedPos1Y = normalizeLEAngle(calibration.twistlungeCalibratedRotations[1].y);
+                            float calibratedPos2Y = normalizeLEAngle(calibration.twistlungeCalibratedRotations[2].y);
+                            float calibratedPos3Y = normalizeLEAngle(calibration.twistlungeCalibratedRotations[3].y);
+                            moveStickFigureGuideTwistlunge(playerY, calibratedPos1Y, calibratedPos2Y, calibratedPos3Y);
+                            // Wait on a new rep
+                            if((position1Next == true) && 
+                                ((playerY > (calibratedPos1Y-errorPaddingDegrees)) &&
+                                (playerY < (calibratedPos1Y+errorPaddingDegrees))))   // Check for a position 1 angle
+                            {
+                                // Change trackers to track position 2 now
+                                position1Next = false;
+                                if (previousPosition == 2)
+                                {
+                                    position2Next = false;
+                                    position3Next = true;
+                                }
+                                else
+                                {
+                                    position2Next = true;
+                                    position3Next = false;
+                                }
+                            }
+                            else if((position2Next == true) &&
+                                        ((playerY > (calibratedPos2Y-errorPaddingDegrees)) &&
+                                        (playerY < (calibratedPos2Y+errorPaddingDegrees))))  // Check for a position 2 angles
+                            {
+                                // 1 full rep has been down now, since this is position 2
+                                // Change trackers to track position 3 now
+                                position1Next = true;
+                                position2Next = false;
+                                position3Next = false;
+                                previousPosition = 2;
+                                repsSoFar += 1; // Increase rep count since we now did position 2, which is a full twist lunge
+                            }
+                            else if((position3Next == true) &&
+                                        ((playerY > (calibratedPos3Y-errorPaddingDegrees)) &&
+                                        (playerY < (calibratedPos3Y+errorPaddingDegrees))))  // Check for a position 3 angles
+                            {
+                                // 1 full rep has been down now, since this is position 3
+                                // Change trackers to track position 1 now
+                                position1Next = true;
+                                position2Next = false;
+                                position3Next = false;
+                                previousPosition = 3;
+                                repsSoFar += 1; // Increase rep count since we now did position 2, which is a full twist lunge
                             }
                         }
                         else
@@ -215,11 +268,12 @@ public class Workout : MonoBehaviour
 
     public void CallWorkout()
     {
-        beginWorkout(ExerciseLibrary.Exercise.TwistLunge);
+        beginWorkout(ExerciseLibrary.Exercise.TwistCrunch);
     }
     public void beginWorkout(ExerciseLibrary.Exercise exerciseToCalibrate)
     {
         enableStickFigures(true);
+        previousPosition = 3;
         workoutCanvas.enabled = true;
         instructionText.text = "Press button on headset to STOP";
         workoutInProgress = true;
@@ -234,6 +288,7 @@ public class Workout : MonoBehaviour
     private void finishWorkout()
     {
         startTime = -1;
+        previousPosition = 3;
         enableStickFigures(false);
         workoutInProgress = false;
         workoutDone = true;
@@ -286,13 +341,13 @@ public class Workout : MonoBehaviour
             // Change color of guide lines depending on next situp position
             if (position2Next == true)
             {
-                pos1Line.color = new Color(0f, 1f, 0f, 1f);;
-                pos2Line.color = new Color(1f, 0f, 0f, 1f);;
+                pos1Line.color = new Color(0f, 1f, 0f, 1f);
+                pos2Line.color = new Color(1f, 0f, 0f, 1f);
             }
             else if (position1Next == true)
             {
-                pos1Line.color = new Color(1f, 0f, 0f, 1f);;
-                pos2Line.color = new Color(0f, 1f, 0f, 1f);;
+                pos1Line.color = new Color(1f, 0f, 0f, 1f);
+                pos2Line.color = new Color(0f, 1f, 0f, 1f);
             }
             // Map the player's angle to the min and max angles of the stick figure (0 to -75 degrees)
             float stickFigureAngle = Mathf.Lerp(0, -75, Mathf.InverseLerp(lowerBound, upperBound, curPos));
@@ -370,6 +425,63 @@ public class Workout : MonoBehaviour
         }
     }
 
+    private void moveStickFigureGuideTwistlunge(float playerPos, float calibratedPos1, float calibratedPos2, float calibratedPos3)
+    {
+        // Stick figure will move differently depending on the exercise
+        if(selectedExercise == ExerciseLibrary.Exercise.TwistLunge)
+        {
+            Transform stickFigureTorso = twistlungeStickFigure.transform.Find("UpperBody");
+            SpriteRenderer pos1Line = twistlungeStickFigure.transform.Find("Position1Line").GetComponent<SpriteRenderer>();
+            SpriteRenderer pos2Line = twistlungeStickFigure.transform.Find("Position2Line").GetComponent<SpriteRenderer>();
+            SpriteRenderer pos3Line = twistlungeStickFigure.transform.Find("Position3Line").GetComponent<SpriteRenderer>();
+            // Change color of guide lines depending on next situp position
+            float stickFigureAngle = 0;
+            float stickFigureY = 0;
+            int repPercent = 0;
+            if (position2Next == true)
+            {
+                pos1Line.color = new Color(0f, 1f, 0f, 1f);
+                pos2Line.color = new Color(1f, 0f, 0f, 1f);
+                pos3Line.color = new Color(0f, 1f, 0f, 1f);
+                stickFigureAngle = Mathf.Lerp(0, 90, Mathf.InverseLerp(calibratedPos1, calibratedPos2, playerPos));
+                stickFigureY = Mathf.Lerp(-26, 28, Mathf.InverseLerp(calibratedPos1, calibratedPos2, playerPos));
+                repPercent = 50 + (int) Math.Round(Mathf.Lerp(0, 50, Mathf.InverseLerp(calibratedPos1-errorPaddingDegrees, calibratedPos2+errorPaddingDegrees, playerPos)), 0);
+            }
+            else if (position1Next == true)
+            {
+                pos1Line.color = new Color(1f, 0f, 0f, 1f);
+                pos2Line.color = new Color(0f, 1f, 0f, 1f);
+                pos3Line.color = new Color(0f, 1f, 0f, 1f);
+                if (previousPosition == 3)
+                {
+                    stickFigureAngle = Mathf.Lerp(0, -90, Mathf.InverseLerp(calibratedPos1, calibratedPos3, playerPos));
+                    stickFigureY = Mathf.Lerp(-26, 28, Mathf.InverseLerp(calibratedPos1, calibratedPos3, playerPos));
+                    repPercent = (int) Math.Round(Mathf.Lerp(50, 0, Mathf.InverseLerp(calibratedPos1+errorPaddingDegrees, calibratedPos3-errorPaddingDegrees, playerPos)), 0);
+                }
+                else
+                {
+                    stickFigureAngle = Mathf.Lerp(0, 90, Mathf.InverseLerp(calibratedPos1, calibratedPos2, playerPos));
+                    stickFigureY = Mathf.Lerp(-26, 28, Mathf.InverseLerp(calibratedPos1, calibratedPos2, playerPos));
+                    repPercent = (int) Math.Round(Mathf.Lerp(50, 0, Mathf.InverseLerp(calibratedPos1-errorPaddingDegrees, calibratedPos2+errorPaddingDegrees, playerPos)), 0);
+                }
+                
+            }
+            else if (position3Next == true)
+            {
+                pos1Line.color = new Color(0f, 1f, 0f, 1f);
+                pos2Line.color = new Color(0f, 1f, 0f, 1f);
+                pos3Line.color = new Color(1f, 0f, 0f, 1f);
+                stickFigureAngle = Mathf.Lerp(0, -90, Mathf.InverseLerp(calibratedPos1, calibratedPos3, playerPos));
+                stickFigureY = Mathf.Lerp(-26, 28, Mathf.InverseLerp(calibratedPos1, calibratedPos3, playerPos));
+                repPercent = 50 + (int) Math.Round(Mathf.Lerp(0, 50, Mathf.InverseLerp(calibratedPos1+errorPaddingDegrees, calibratedPos3-errorPaddingDegrees, playerPos)), 0);
+            }
+            // Move the stick figure
+            stickFigureTorso.localEulerAngles = new Vector3(stickFigureTorso.localEulerAngles.x, stickFigureTorso.localEulerAngles.y, stickFigureAngle);
+            stickFigureTorso.localPosition = new Vector3(stickFigureTorso.localPosition.x, stickFigureY, stickFigureTorso.localPosition.z);
+            repPercentage.text = "Rep: "+repPercent+"%";
+        }
+    }
+
     private void updateTimerText()
     {
         if (startTime == -1)
@@ -386,6 +498,7 @@ public class Workout : MonoBehaviour
             repPerBackground.SetActive(enabled);
             situpStickFigure.SetActive(enabled);
             twistcrunchStickFigure.SetActive(enabled);
+            twistlungeStickFigure.SetActive(enabled);
         }
         else
         {
@@ -394,11 +507,19 @@ public class Workout : MonoBehaviour
             {
                 situpStickFigure.SetActive(enabled);
                 twistcrunchStickFigure.SetActive(false);
+                twistlungeStickFigure.SetActive(false);
             }
             else if (selectedExercise == ExerciseLibrary.Exercise.TwistCrunch)
             {
                 situpStickFigure.SetActive(false);
                 twistcrunchStickFigure.SetActive(enabled);
+                twistlungeStickFigure.SetActive(false);
+            }
+            else if (selectedExercise == ExerciseLibrary.Exercise.TwistLunge)
+            {
+                situpStickFigure.SetActive(false);
+                twistcrunchStickFigure.SetActive(false);
+                twistlungeStickFigure.SetActive(enabled);
             }
         }
     }
