@@ -40,6 +40,8 @@ public class Workout : MonoBehaviour
     // Flags to know which position of the situp is next to track
     private bool position1Next = true;
     private bool position2Next = false;
+    private bool position3Next = false;
+
     // Reference to player camera to track phone angle
     public Camera playerCamera;
     // Flag to know whether the user is currently still working out. This is check in Update()
@@ -87,7 +89,8 @@ public class Workout : MonoBehaviour
             {
                 workoutCanvas.enabled = true;
                 updateStatsText();
-                // Check whether we're past the 1st frame here in order to enable the user to exit. This is a fix for a bug where the user got auto-exited on the first frame.
+                // Check whether we're past the 1st frame here in order to enable the user to exit.
+                // This is a hacky fix for a bug where the user got auto-exited on the first frame.
                 if(firstWorkoutFrame == false)
                     if(Input.GetButtonDown("Fire1"))
                         finishWorkout();
@@ -119,6 +122,52 @@ public class Workout : MonoBehaviour
                                 position1Next = true;
                                 position2Next = false;
                                 repsSoFar += 1; // Increase rep count since we now did position 2, which is a full situp
+                            }
+                        }
+                        else if(selectedExercise == ExerciseLibrary.Exercise.TwistCrunch)
+                        {
+                            // Wait on a new rep
+                            if((position1Next == true) && 
+                                ((playerCamera.transform.localEulerAngles.x > ((calibration.twistcrunchCalibratedRotations[1].x-errorPaddingDegrees)%360)) &&
+                                (playerCamera.transform.localEulerAngles.x < ((calibration.twistcrunchCalibratedRotations[1].x+errorPaddingDegrees)%360))))   // Check for a position 1 angle
+                            {
+                                // Change trackers to track position 2 now
+                                position1Next = false;
+                                position2Next = true;
+                                position1Next = false;
+                            }
+                            else if((position2Next == true) &&
+                                        ((playerCamera.transform.localEulerAngles.x >
+                                            ((calibration.twistcrunchCalibratedRotations[2].x-errorPaddingDegrees)%360)) &&
+                                        (playerCamera.transform.localEulerAngles.x <
+                                            ((calibration.twistcrunchCalibratedRotations[2].x+errorPaddingDegrees)%360)) &&
+                                        (playerCamera.transform.localEulerAngles.y >
+                                            ((calibration.twistcrunchCalibratedRotations[2].y-errorPaddingDegrees)%360)) &&
+                                        (playerCamera.transform.localEulerAngles.y >
+                                            ((calibration.twistcrunchCalibratedRotations[2].y-errorPaddingDegrees)%360))))  // Check for a position 2 angles
+                            {
+                                // 1 full rep has been down now, since this is position 2
+                                // Change trackers to track position 3 now
+                                position1Next = false;
+                                position2Next = false;
+                                position3Next = true;
+                            }
+                            else if((position3Next == true) &&
+                                        ((playerCamera.transform.localEulerAngles.x >
+                                            ((calibration.twistcrunchCalibratedRotations[3].x-errorPaddingDegrees)%360)) &&
+                                        (playerCamera.transform.localEulerAngles.x <
+                                            ((calibration.twistcrunchCalibratedRotations[3].x+errorPaddingDegrees)%360)) &&
+                                        (playerCamera.transform.localEulerAngles.y >
+                                            ((calibration.twistcrunchCalibratedRotations[3].y-errorPaddingDegrees)%360)) &&
+                                        (playerCamera.transform.localEulerAngles.y >
+                                            ((calibration.twistcrunchCalibratedRotations[3].y-errorPaddingDegrees)%360))))  // Check for a position 3 angles
+                            {
+                                // 1 full rep has been down now, since this is position 3
+                                // Change trackers to track position 1 now
+                                position1Next = true;
+                                position2Next = false;
+                                position3Next = false;
+                                repsSoFar += 1; // Increase rep count since we now did position 2, which is a full twist crunch
                             }
                         }
                         else
@@ -162,6 +211,7 @@ public class Workout : MonoBehaviour
         firstWorkoutFrame = true;
         setsSoFar = 0;
         repsSoFar = 0;
+        position1Next = true;
         selectedExercise = exerciseToCalibrate;
     }
 
