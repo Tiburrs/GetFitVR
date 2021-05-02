@@ -228,6 +228,7 @@ public class SensorCalibration : MonoBehaviour
         if(calibrationExercise == ExerciseLibrary.Exercise.SitUp)
         {
             situpCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x, 0, 0);
+            Debug.Log("Position: "+pos+", Angles: "+situpCalibratedRotations[pos]);
         }
         else if(calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch)
         {

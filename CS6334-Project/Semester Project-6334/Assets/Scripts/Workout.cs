@@ -55,32 +55,31 @@ public class Workout : MonoBehaviour
     public Text statsText;
     public Text timerText;
     public Text instructionText;
-    private TimeSpan totalTime = new TimeSpan(0, 0, 0, 0);
+    private float startTime = -1;
     private TimeSpan bestTotalTime = new TimeSpan(0, 0, 0, 0);
     private TimeSpan bestSetTime = new TimeSpan(0, 0, 0, 0);
     private TimeSpan bestRepTime = new TimeSpan(0, 0, 0, 0);
     private bool firstWorkoutFrame = true;
+    public GameObject stickFigure;
+    public Text repPercentage;
 
     // ######## Extra Additions ##########
     public Canvas selections;
     void Start()
     {
         workoutCanvas.enabled = false;
+        stickFigure.SetActive(false);
+        stickFigure.GetComponent<SpriteRenderer>().enabled = false;
         calibration = GetComponent<SensorCalibration>();
-
-        // For testing purposes. Remove this for final prototype:
-        
     }
 
     void Update()
     {
-     
-        //Debug.Log(GvrPointerInputModule.CurrentRaycastResult.gameObject.name);
-    
         // Check if 1. a calibration has NOT been done AND 2. a calibration is NOT in progress
         if ((calibrated == false) && (calibration.userCalibrating == false) && workoutInProgress)
         {
             workoutCanvas.enabled = false;
+            stickFigure.SetActive(false);
             calibration.beginCalibration(selectedExercise);
         }
         else if(calibrated == true) // Else, check if a calibration has been done in the past
@@ -88,6 +87,8 @@ public class Workout : MonoBehaviour
             if(workoutInProgress == true)
             {
                 workoutCanvas.enabled = true;
+                stickFigure.SetActive(true);
+                updateTimerText();
                 updateStatsText();
                 // Check whether we're past the 1st frame here in order to enable the user to exit.
                 // This is a hacky fix for a bug where the user got auto-exited on the first frame.
@@ -104,18 +105,23 @@ public class Workout : MonoBehaviour
                         // Here, there is different logic for each type of exercise, since all have different numbers of positions
                         if(selectedExercise == ExerciseLibrary.Exercise.SitUp)
                         {
+                            // Normalize: To flip the 0-degree origin of the angles by 180 (makes comparing angles easier)
+                            float playerX = normalizeLEAngle(playerCamera.transform.localEulerAngles.x);
+                            float calibratedPos1X = normalizeLEAngle(calibration.situpCalibratedRotations[1].x);
+                            float calibratedPos2X = normalizeLEAngle(calibration.situpCalibratedRotations[2].x);
+                            moveStickFigureGuide(playerX, calibratedPos1X, calibratedPos2X);
                             // Wait on a new rep
                             if((position1Next == true) && 
-                                ((playerCamera.transform.localEulerAngles.x > ((calibration.situpCalibratedRotations[1].x-errorPaddingDegrees)%360)) &&
-                                (playerCamera.transform.localEulerAngles.x < ((calibration.situpCalibratedRotations[1].x+errorPaddingDegrees)%360))))   // Check for a position 1 angle
+                                ((playerX > ((calibratedPos1X-errorPaddingDegrees))) &&
+                                (playerX < ((calibratedPos1X+errorPaddingDegrees)))))   // Check for a position 1 angle
                             {
                                 // Change trackers to track position 2 now
                                 position1Next = false;
                                 position2Next = true;
                             }
                             else if((position2Next == true) &&
-                                ((playerCamera.transform.localEulerAngles.x > ((calibration.situpCalibratedRotations[2].x-errorPaddingDegrees)%360)) &&
-                                (playerCamera.transform.localEulerAngles.x < ((calibration.situpCalibratedRotations[2].x+errorPaddingDegrees)%360))))  // Check for a position 2 angle
+                                ((playerX > ((calibratedPos2X-errorPaddingDegrees))) &&
+                                (playerX < ((calibratedPos2X+errorPaddingDegrees)))))  // Check for a position 2 angle
                             {
                                 // 1 full rep has been down now, since this is position 2
                                 // Change trackers to track position 1 now
@@ -200,10 +206,11 @@ public class Workout : MonoBehaviour
 
     public void CallWorkout()
     {
-        beginWorkout(ExerciseLibrary.Exercise.TwistCrunch);
+        beginWorkout(ExerciseLibrary.Exercise.SitUp);
     }
     public void beginWorkout(ExerciseLibrary.Exercise exerciseToCalibrate)
     {
+        stickFigure.SetActive(true);
         workoutCanvas.enabled = true;
         instructionText.text = "Press button on headset to STOP";
         workoutInProgress = true;
@@ -217,6 +224,8 @@ public class Workout : MonoBehaviour
 
     private void finishWorkout()
     {
+        startTime = -1;
+        stickFigure.SetActive(false);
         workoutInProgress = false;
         workoutDone = true;
         instructionText.text = "Done!\nPress button on headset to QUIT";
@@ -241,5 +250,66 @@ public class Workout : MonoBehaviour
         statsText.text = "Sets: "+setsSoFar+"/"+sets+
                         "\nReps: "+repsSoFar+"/"+reps+
                         "\nCalories: "+calories;
+    }
+
+    /*  localEulerAngles range from 0 to 360. Once they go above 360, they restart at 0.
+     *  This is a problem due to the nature of the character's camera in this app.
+     *     When the character is looking straight forward at the horizon, its localEulerAngles.x is 0.
+     *     If the character looks above, the angle immediately jumps to the 360s. This makes it difficult
+     *     to compare angles when one is in the 360s and the other in the 10s.
+     *  This function moves the 0 origin to the back of the character, an angle that the camera will
+     *  never reach. Now, the localEulerAngle of 0 will become 180, making comparisons above and below
+     *  the horizon easier.
+     */
+    private float normalizeLEAngle(float localEulerAngle)
+    {
+        return (localEulerAngle + 180) % 360;
+    }
+
+    private void moveStickFigureGuide(float curPos, float lowerBound, float upperBound)
+    {
+        Transform stickFigureTorso = stickFigure.transform.Find("UpperBody");
+        SpriteRenderer pos1Line = stickFigure.transform.Find("Position1Line").GetComponent<SpriteRenderer>();
+        SpriteRenderer pos2Line = stickFigure.transform.Find("Position2Line").GetComponent<SpriteRenderer>();
+        // Stick figure will move differently depending on the exercise
+        if(selectedExercise == ExerciseLibrary.Exercise.SitUp)
+        {
+            // Change color of guide lines depending on next situp position
+            if (position2Next == true)
+            {
+                pos1Line.color = new Color(0f, 1f, 0f, 1f);;
+                pos2Line.color = new Color(1f, 0f, 0f, 1f);;
+            }
+            else if (position1Next == true)
+            {
+                pos1Line.color = new Color(1f, 0f, 0f, 1f);;
+                pos2Line.color = new Color(0f, 1f, 0f, 1f);;
+            }
+            // Map the player's angle to the min and max angles of the stick figure (0 to -75 degrees)
+            float stickFigureAngle = Mathf.Lerp(0, -75, Mathf.InverseLerp(lowerBound, upperBound, curPos));
+            // Move the stick figure
+            stickFigureTorso.localEulerAngles = new Vector3(
+                stickFigureTorso.localEulerAngles.x,
+                stickFigureTorso.localEulerAngles.y,
+                stickFigureAngle);
+            // Calculate the percentage of the rep we're at
+            int repPercent = 0;
+            stickFigureAngle = Mathf.Lerp(0, -75, Mathf.InverseLerp(lowerBound+errorPaddingDegrees, upperBound-errorPaddingDegrees, curPos));
+            // Add 50% if we're past position 1
+            if (position2Next == true)
+                repPercent = 50 + (int) Math.Round(Mathf.Lerp(0, 50, Mathf.InverseLerp(0, -75, stickFigureAngle)), 0);
+            else
+                repPercent = (int) Math.Round(Mathf.Lerp(50, 0, Mathf.InverseLerp(0, -75, stickFigureAngle)), 0);
+            repPercentage.text = "Rep: "+repPercent+"%";
+        }
+    }
+
+    private void updateTimerText()
+    {
+        if (startTime == -1)
+            startTime = Time.time;
+        TimeSpan elapsedTime = TimeSpan.FromSeconds(Time.time - startTime);
+        string timeText = string.Format("{0:D2}:{1:D2}.{2:D2}", elapsedTime.Minutes, elapsedTime.Seconds, elapsedTime.Milliseconds/10);
+        timerText.text = "Time:\n"+timeText;
     }
 }
