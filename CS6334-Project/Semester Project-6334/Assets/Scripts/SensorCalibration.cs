@@ -19,6 +19,9 @@ public class SensorCalibration : MonoBehaviour
     public Texture twistcrunchPosition1Image;
     public Texture twistcrunchPosition2Image;
     public Texture twistcrunchPosition3Image;
+    public Texture twistlungePosition1Image;
+    public Texture twistlungePosition2Image;
+    public Texture twistlungePosition3Image;
     // The angles of the player's camera are what will be read for calibration
     public Camera playerCamera;
     // 3D models of a Google Cardboard to help user orient themselves. This model will reflect the currect orientation.
@@ -29,6 +32,7 @@ public class SensorCalibration : MonoBehaviour
     // The dictionary has this form: {1: Vector3, 2: Vector3}
     public Dictionary<int, Vector3> situpCalibratedRotations = new Dictionary<int, Vector3>();
     public Dictionary<int, Vector3> twistcrunchCalibratedRotations = new Dictionary<int, Vector3>();
+    public Dictionary<int, Vector3> twistlungeCalibratedRotations = new Dictionary<int, Vector3>();
     // This exercise is the one that will be calibrated. Set by beginCalibration().
     private ExerciseLibrary.Exercise calibrationExercise;
     // Flag set when the user enters the calibration walkthrough. Set by beginCalibration().
@@ -91,7 +95,7 @@ public class SensorCalibration : MonoBehaviour
                     cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
                 }
             }
-            else if (calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch)
+            else if (calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch || calibrationExercise == ExerciseLibrary.Exercise.TwistLunge)
             {
                 if(calibrationStep==1)
                 {
@@ -218,6 +222,33 @@ public class SensorCalibration : MonoBehaviour
         }
         else if(calibrationExercise == ExerciseLibrary.Exercise.TwistLunge)
         {
+            if(step == 0)
+                setCanvasText("Press button on headset\nto begin twist-lunge calibration");
+            else if(step == 1)
+            {
+                setCanvasText("Get in position 1 of a twist-lunge,\nthen press button on headset");
+                setCanvasImage(twistlungePosition1Image);
+            }
+            else if(step == 2)
+            {
+                readPositionAngles(1);
+                setCanvasText("Get in position 2 of a twist-lunge,\nthen press button on headset");
+                setCanvasImage(twistlungePosition2Image);
+            }
+            else if(step == 3)
+            {
+                readPositionAngles(2);
+                setCanvasText("Get in position 3 of a twist-lunge,\nthen press button on headset");
+                setCanvasImage(twistlungePosition3Image);
+            }
+            else if(step == 4)
+            {
+                readPositionAngles(3);
+                setCanvasText("Calibrated successfully!\nPress button on headset to begin workout");
+                setCanvasImage(null);
+            }
+            else
+                endCalibration();
         }
         else
             setCanvasText("Calibration not supported for this exercise");
@@ -226,10 +257,7 @@ public class SensorCalibration : MonoBehaviour
     private void readPositionAngles(int pos)
     {   
         if(calibrationExercise == ExerciseLibrary.Exercise.SitUp)
-        {
             situpCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x, 0, 0);
-            Debug.Log("Position: "+pos+", Angles: "+situpCalibratedRotations[pos]);
-        }
         else if(calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch)
         {
             if(calibrationStep == 1)
@@ -239,6 +267,8 @@ public class SensorCalibration : MonoBehaviour
                 twistcrunchCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x,
                                                                     playerCamera.transform.localEulerAngles.y, 0);
         }
+        else if(calibrationExercise == ExerciseLibrary.Exercise.TwistLunge)
+            twistlungeCalibratedRotations[pos] = new Vector3(0, playerCamera.transform.localEulerAngles.y, 0);
     }
 
     /*  Helper function to quickly change the instructional text on the

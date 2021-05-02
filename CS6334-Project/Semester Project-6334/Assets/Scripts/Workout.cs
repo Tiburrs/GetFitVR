@@ -215,7 +215,7 @@ public class Workout : MonoBehaviour
 
     public void CallWorkout()
     {
-        beginWorkout(ExerciseLibrary.Exercise.TwistCrunch);
+        beginWorkout(ExerciseLibrary.Exercise.TwistLunge);
     }
     public void beginWorkout(ExerciseLibrary.Exercise exerciseToCalibrate)
     {
