@@ -151,7 +151,7 @@ public class Workout : MonoBehaviour
 
     public void CallWorkout()
     {
-        beginWorkout(ExerciseLibrary.Exercise.SitUp);
+        beginWorkout(ExerciseLibrary.Exercise.TwistCrunch);
     }
     public void beginWorkout(ExerciseLibrary.Exercise exerciseToCalibrate)
     {

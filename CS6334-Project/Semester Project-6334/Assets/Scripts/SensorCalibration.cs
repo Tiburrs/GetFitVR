@@ -16,6 +16,9 @@ public class SensorCalibration : MonoBehaviour
     public Text instructionalText;
     public Texture situpPosition1Image;
     public Texture situpPosition2Image;
+    public Texture twistcrunchPosition1Image;
+    public Texture twistcrunchPosition2Image;
+    public Texture twistcrunchPosition3Image;
     // The angles of the player's camera are what will be read for calibration
     public Camera playerCamera;
     // 3D models of a Google Cardboard to help user orient themselves. This model will reflect the currect orientation.
@@ -24,8 +27,8 @@ public class SensorCalibration : MonoBehaviour
     public GameObject cardboardPosition3Model;
     // Final product of this calibration is the rotations of the 2 situp positions. They're stored in this dictionary with public access.
     // The dictionary has this form: {1: Vector3, 2: Vector3}
-    public Dictionary<int, Vector3> situpCalibratedRotations = new Dictionary<int, Vector3>(); 
-
+    public Dictionary<int, Vector3> situpCalibratedRotations = new Dictionary<int, Vector3>();
+    public Dictionary<int, Vector3> twistcrunchCalibratedRotations = new Dictionary<int, Vector3>();
     // This exercise is the one that will be calibrated. Set by beginCalibration().
     private ExerciseLibrary.Exercise calibrationExercise;
     // Flag set when the user enters the calibration walkthrough. Set by beginCalibration().
@@ -62,28 +65,67 @@ public class SensorCalibration : MonoBehaviour
                 advanceToStep(calibrationExercise, calibrationStep);
             }
             // Show 3D models of Google Cardboard: one for each position of the situp. These will help the user see their current orientation.
-            if(calibrationStep==1)
+            if (calibrationExercise == ExerciseLibrary.Exercise.SitUp)
             {
-                // Rotate 3D model 1 with the camera
-                cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
-                cardboardPosition1Model.transform.localEulerAngles = new Vector3(
-                                                playerCamera.transform.localEulerAngles.x,
-                                                cardboardPosition1Model.transform.localEulerAngles.y,
-                                                cardboardPosition1Model.transform.localEulerAngles.z);
+                if(calibrationStep==1)
+                {
+                    // Rotate 3D model 1 with the camera
+                    cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
+                    cardboardPosition1Model.transform.localEulerAngles = new Vector3(
+                                                    playerCamera.transform.localEulerAngles.x,
+                                                    cardboardPosition1Model.transform.localEulerAngles.y,
+                                                    cardboardPosition1Model.transform.localEulerAngles.z);
+                }
+                else if(calibrationStep==2)
+                {
+                    // Freeze 3D model 1 and rotate 3D model 2 with the camera
+                    cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
+                    cardboardPosition2Model.transform.localEulerAngles = new Vector3(
+                                                    playerCamera.transform.localEulerAngles.x,
+                                                    cardboardPosition2Model.transform.localEulerAngles.y,
+                                                    cardboardPosition2Model.transform.localEulerAngles.z);
+                }
+                else if(calibrationStep==0)
+                {   // Remove 3D models once done or if the calibration is barely starting
+                    cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                    cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                }
             }
-            else if(calibrationStep==2)
+            else if (calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch)
             {
-                // Freeze 3D model 1 and rotate 3D model 2 with the camera
-                cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
-                cardboardPosition2Model.transform.localEulerAngles = new Vector3(
-                                                playerCamera.transform.localEulerAngles.x,
-                                                cardboardPosition2Model.transform.localEulerAngles.y,
-                                                cardboardPosition2Model.transform.localEulerAngles.z);
-            }
-            else if(calibrationStep==0)
-            {   // Remove 3D models once done or if the calibration is barely starting
-                cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
-                cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                if(calibrationStep==1)
+                {
+                    // Rotate 3D model 1 with the camera
+                    cardboardPosition3Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
+                    cardboardPosition3Model.transform.localEulerAngles = new Vector3(
+                                                    playerCamera.transform.localEulerAngles.x,
+                                                    cardboardPosition3Model.transform.localEulerAngles.y,
+                                                    cardboardPosition3Model.transform.localEulerAngles.z);
+                }
+                else if(calibrationStep==2)
+                {
+                    // Freeze 3D model 1 and rotate 3D model 2 with the camera
+                    cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
+                    cardboardPosition1Model.transform.localEulerAngles = new Vector3(
+                                                    playerCamera.transform.localEulerAngles.x,
+                                                    playerCamera.transform.localEulerAngles.y,
+                                                    cardboardPosition1Model.transform.localEulerAngles.z);
+                }
+                else if(calibrationStep==3)
+                {
+                    // Freeze 3D model 1 and rotate 3D model 2 with the camera
+                    cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = true;
+                    cardboardPosition2Model.transform.localEulerAngles = new Vector3(
+                                                    playerCamera.transform.localEulerAngles.x,
+                                                    playerCamera.transform.localEulerAngles.y,
+                                                    cardboardPosition2Model.transform.localEulerAngles.z);
+                }
+                else if(calibrationStep==4)
+                {   // Remove 3D models once done or if the calibration is barely starting
+                    cardboardPosition1Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                    cardboardPosition3Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                    cardboardPosition2Model.transform.Find("google-cardboard").transform.Find("default").GetComponent<MeshRenderer>().enabled = false;
+                }
             }
         }
     }
@@ -144,14 +186,57 @@ public class SensorCalibration : MonoBehaviour
             else
                 endCalibration();
         }
+        else if(calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch)
+        {
+            if(step == 0)
+                setCanvasText("Press button on headset\nto begin twist-crunch calibration");
+            else if(step == 1)
+            {
+                setCanvasText("Get in position 1 of a twist-crunch,\nthen press button on headset");
+                setCanvasImage(twistcrunchPosition1Image);
+            }
+            else if(step == 2)
+            {
+                readPositionAngles(1);
+                setCanvasText("Get in position 2 of a twist-crunch,\nthen press button on headset");
+                setCanvasImage(twistcrunchPosition2Image);
+            }
+            else if(step == 3)
+            {
+                readPositionAngles(2);
+                setCanvasText("Get in position 3 of a twist-crunch,\nthen press button on headset");
+                setCanvasImage(twistcrunchPosition3Image);
+            }
+            else if(step == 4)
+            {
+                readPositionAngles(3);
+                setCanvasText("Calibrated successfully!\nPress button on headset to begin workout");
+                setCanvasImage(null);
+            }
+            else
+                endCalibration();
+        }
+        else if(calibrationExercise == ExerciseLibrary.Exercise.TwistLunge)
+        {
+        }
         else
             setCanvasText("Calibration not supported for this exercise");
     }
 
     private void readPositionAngles(int pos)
     {   
-        situpCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x, 0, 0);
-        Debug.Log(situpCalibratedRotations[pos]);
+        if(calibrationExercise == ExerciseLibrary.Exercise.SitUp)
+        {
+            situpCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x, 0, 0);
+        }
+        else if(calibrationExercise == ExerciseLibrary.Exercise.TwistCrunch)
+        {
+            if(calibrationStep == 1)
+                twistcrunchCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x, 0, 0);
+            else
+                twistcrunchCalibratedRotations[pos] = new Vector3(playerCamera.transform.localEulerAngles.x,
+                                                                    playerCamera.transform.localEulerAngles.y, 0);
+        }
     }
 
     /*  Helper function to quickly change the instructional text on the
