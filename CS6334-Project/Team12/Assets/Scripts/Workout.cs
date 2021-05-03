@@ -297,9 +297,7 @@ public class Workout : MonoBehaviour
     }
     public void beginWorkout(ExerciseLibrary.Exercise exerciseToCalibrate)
     {
-        enableStickFigures(true);
         previousPosition = 3;
-        workoutCanvas.enabled = true;
         instructionText.text = "Press button on headset to STOP";
         workoutInProgress = true;
         workoutDone = false;
