@@ -170,8 +170,6 @@ public class Workout : MonoBehaviour
                             }
                             else if((position2Next == true) &&
                                         ((playerPos.x > (calibratedPos2.x-errorPaddingDegrees)) &&
-                                        (playerPos.x < (calibratedPos2.x+errorPaddingDegrees)) &&
-                                        (playerPos.y > (calibratedPos2.y-errorPaddingDegrees)) &&
                                         (playerPos.y < (calibratedPos2.y+errorPaddingDegrees))))  // Check for a position 2 angles
                             {
                                 // 1 full rep has been down now, since this is position 2
@@ -182,9 +180,7 @@ public class Workout : MonoBehaviour
                             }
                             else if((position3Next == true) &&
                                         ((playerPos.x > (calibratedPos3.x-errorPaddingDegrees)) &&
-                                        (playerPos.x < (calibratedPos3.x+errorPaddingDegrees)) &&
-                                        (playerPos.y > (calibratedPos3.y-errorPaddingDegrees)) &&
-                                        (playerPos.y < (calibratedPos3.y+errorPaddingDegrees))))  // Check for a position 3 angles
+                                        (playerPos.y > (calibratedPos3.y-errorPaddingDegrees))))  // Check for a position 3 angles
                             {
                                 // 1 full rep has been down now, since this is position 3
                                 // Change trackers to track position 1 now
