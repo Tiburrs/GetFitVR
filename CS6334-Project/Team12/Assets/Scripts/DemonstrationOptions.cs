@@ -6,10 +6,11 @@ public class DemonstrationOptions : MonoBehaviour
 {
     // Reference the to canvas containing the demonstration
     public Canvas demonstrationCanvas;
-
+    private Canvas trainerOptionsCanvas;
     void Start()
     {
         demonstrationCanvas.enabled = false;
+        trainerOptionsCanvas = GameObject.Find("Trainer Options").GetComponent<Canvas>();
     }
 
     void Update()
@@ -18,7 +19,10 @@ public class DemonstrationOptions : MonoBehaviour
         {
             // Listen for the user tapping the screen to exit the demonstrationCanvas
             if(Input.GetButtonDown("Fire1"))
+            {
                 demonstrationCanvas.enabled = false;
+                trainerOptionsCanvas.enabled = true;
+            }
         }
     }
 

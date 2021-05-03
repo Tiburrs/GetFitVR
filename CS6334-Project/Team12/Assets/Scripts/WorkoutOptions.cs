@@ -7,10 +7,12 @@ public class WorkoutOptions : MonoBehaviour
     // Reference the to canvas containing the workouts
     public Canvas workoutOptionsCanvas;
     bool on;
+    private Canvas trainerOptionsCanvas;
     void Start()
     {
         on = false;
         workoutOptionsCanvas.enabled = on;
+        trainerOptionsCanvas = GameObject.Find("Trainer Options").GetComponent<Canvas>();
     }
 
     void Update()
@@ -19,7 +21,11 @@ public class WorkoutOptions : MonoBehaviour
         {
             // Listen for the user tapping the screen to exit the workoutOptionsCanvas
             if(Input.GetButtonDown("Fire1"))
+            {
+                on = !on;
                 workoutOptionsCanvas.enabled = false;
+                trainerOptionsCanvas.enabled = true;
+            }
         }
     }
 
