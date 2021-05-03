@@ -175,12 +175,20 @@ public class SensorCalibration : MonoBehaviour
      */
     public void beginCalibration(ExerciseLibrary.Exercise exerciseToCalibrate)
     {
+        resetCardboardModelPositions();
         calibrationCanvas.enabled = true;
         userCalibrating = true;
         calibrationExercise = exerciseToCalibrate;
         calibrationStep = 0;
 
         advanceToStep(calibrationExercise, calibrationStep);
+    }
+
+    private void resetCardboardModelPositions()
+    {
+        cardboardPosition1Model.transform.localEulerAngles = new Vector3(0,0,0);
+        cardboardPosition2Model.transform.localEulerAngles = new Vector3(0,0,0);
+        cardboardPosition3Model.transform.localEulerAngles = new Vector3(0,0,0);
     }
 
     /*  End the calibration session and reset all necessary variables in preparation
