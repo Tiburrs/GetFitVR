@@ -1,0 +1,42 @@
+# Blender MTL File: 'None'
+# Material Count: 4
+
+newmtl Material__45ff
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.603900 0.603900 0.603900
+Ks 0.041670 0.041670 0.041670
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd back.png
+
+newmtl Material__45ffn
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.603900 0.603900 0.603900
+Ks 0.041670 0.041670 0.041670
+Ni 1.000000
+d 0.660000
+illum 2
+map_Kd back.png
+
+newmtl plastiks
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.047100 0.047100 0.047100
+Ks 0.041670 0.041670 0.041670
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd karton.jpg
+
+newmtl soft
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.047100 0.047100 0.047100
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd karton - Copy.jpg
