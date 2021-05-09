@@ -34,6 +34,6 @@ public class WorkoutOptions : MonoBehaviour
     {
         on = !on;
         workoutOptionsCanvas.enabled = on;
-        Debug.Log(on);
+        //Debug.Log(on);
     }
 }
